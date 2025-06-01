@@ -1,0 +1,24 @@
+services:
+  mysql:
+    image: mysql:8.4.3
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_TCP_PORT=3306
+  phpMyAdmin:
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - PMA_ARBITRARY=1
+
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - 6379:6379
