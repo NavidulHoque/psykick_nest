@@ -4,6 +4,8 @@
 /build
 /prisma-mysql
 .env
+/prisma-mysql
+/mysql
 
 # Logs
 logs
