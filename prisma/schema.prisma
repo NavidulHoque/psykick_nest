@@ -56,15 +56,15 @@ model Image{
   subCategory            SubCategory   @relation(fields: [subCategoryId], references: [id])
   subCategoryId          String
 
-  ARVTargetImages        ARVTargetImages[]
-  TMCTargetImages        TMCTargetImages[]
+  ARVTargets             ARVTargetImages[]
+  TMCTargets             TMCTargetImages[]
 
   createdAt              DateTime      @default(now())
 }
 
 model SubCategory{
   id                     String        @id @default(uuid())
-  name                   String
+  name                   String        @unique
 
   images                 Image[]
   category               Category      @relation(fields: [categoryId], references: [id])
@@ -102,14 +102,14 @@ model ARVTarget{
   outcomeTime             DateTime
   bufferTime              DateTime
 
-  playedGames             ParticipatedARVTarget[]
-  images                  ARVTargetImages[]  
-
   controlImage            String
   resultImage             String?
   status                  TargetStatus    @default(PENDING)
 
-  createdAt               DateTime      @default(now())
+  usersPlayed             ParticipatedARVTarget[]
+  images                  ARVTargetImages[]  
+
+  createdAt               DateTime        @default(now())
 }
 
 model TMCTargetImages {
@@ -132,7 +132,7 @@ model TMCTarget{
   status                  TargetStatus        @default(PENDING)
 
   controlImages           TMCTargetImages[]
-  playedGames             ParticipatedTMCTarget[]
+  usersPlayed             ParticipatedTMCTarget[]
 
   createdAt               DateTime      @default(now())
 }
