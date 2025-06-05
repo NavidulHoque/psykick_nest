@@ -30,7 +30,7 @@ export class SubCategoryController {
     }
 
     @Roles(Role.Admin)
-    @Patch(':id')
+    @Patch('/update-sub-category:id')
     updateSubCategory(
         @Param('id') id: string, 
         @Body("name") name: string
