@@ -5,27 +5,16 @@ import { HandleErrorsService } from './handleErrors.service';
 @Injectable()
 export class FindEntityByIdService {
 
-    private readonly primaryKeys = {
-        doctor: 'userId',
-        user: 'id',
-        appointment: 'id',
-        review: "id",
-        message: "id",
-        notification: "id",
-        payment: "id"
-    };
-
     constructor(
         private readonly prisma: PrismaService,
         private readonly handleErrorsService: HandleErrorsService
     ) { }
 
     async findEntityById(modelName: string, id: string, select: any | null) {
-        const primaryKey = this.primaryKeys[modelName]
 
         if (!select) {
 
-            const entity = await this.prisma[modelName].findUnique({ where: { [primaryKey]: id } })
+            const entity = await this.prisma[modelName].findUnique({ where: { id } })
 
             if (!entity) {
                 this.handleErrorsService.throwNotFoundError(`${modelName} not found`)
@@ -36,9 +25,9 @@ export class FindEntityByIdService {
 
         else if (select) {
 
-            const entity = await this.prisma[modelName].findUnique({ 
-                where: { [primaryKey]: id },
-                select 
+            const entity = await this.prisma[modelName].findUnique({
+                where: { id },
+                select
             })
 
             if (!entity) {
