@@ -39,7 +39,12 @@ export class CategoryService {
                 this.prisma.category.findMany({
                     where: query,
                     skip: (page - 1) * limit,
-                    take: limit
+                    take: limit,
+                    select: {
+                        id: true,
+                        name: true,
+                        createdAt: true
+                    }
                 }),
 
                 this.prisma.category.count({
@@ -89,6 +94,46 @@ export class CategoryService {
                     }
                 }
             })
+        }
+
+        catch (error) {
+            this.handleErrorsService.handleError(error)
+        }
+    }
+
+    async updateCategory(id: string, name: string) {
+
+        try {
+            const category = await this.prisma.category.update({
+                where: { id },
+                data: { name },
+                select: {
+                    id: true,
+                    name: true
+                }
+            });
+
+            return {
+                message: "Category name updated successfully.",
+                data: category
+            }
+        }
+
+        catch (error) {
+            this.handleErrorsService.handleError(error)
+        }
+    }
+
+    async deleteCategory(id: string) {
+
+        try {
+            await this.prisma.category.delete({
+                where: { id }
+            });
+
+            return {
+                message: "Category deleted successfully."
+            }
         }
 
         catch (error) {
