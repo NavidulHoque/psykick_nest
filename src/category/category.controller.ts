@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
@@ -39,12 +39,18 @@ export class CategoryController {
         return this.categoryService.getCategoryById(id, dto);
     }
 
-
-    update(id: string, dto: any) {
-        return this.categoryService.update(id, dto);
+    @Roles(Role.Admin)
+    @Put('/update-category/:id')
+    updateCategory(
+        @Body("name") name: string,
+        @Param('id') id: string,
+    ) {
+        return this.categoryService.updateCategory(id, name);
     }
 
-    remove(id: string) {
-        return this.categoryService.remove(id);
+    @Roles(Role.Admin)
+    @Put('/delete-category/:id')
+    deleteCategory(id: string) {
+        return this.categoryService.deleteCategory(id);
     }
 }
