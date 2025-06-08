@@ -31,21 +31,48 @@ export class SubCategoryService {
 
     }
 
-    async getSubCategoryById(id: string) {
+    async getSubCategoryById(id: string, page: number, limit: number) {
 
         try {
-            const category = await this.findEntityByIdService.findEntityById("subCategory", id,
-                {
-                    images: {
-                        select: {
-                            url: true
-                        }
+            const [subCategory, images, totalImages] = await this.prisma.$transaction([
+
+                this.prisma.subCategory.findUnique({
+                    where: { id },
+                    select: {
+                        id: true,
+                        name: true,
+                        createdAt: true
                     }
+                }),
+
+                this.prisma.image.findMany({
+                    where: { subCategoryId: id },
+                    select: {
+                        id: true,
+                        url: true,
+                        createdAt: true
+                    },
+                    take: limit,
+                    skip: (page - 1) * limit
+                }),
+
+                this.prisma.image.count({
+                    where: { subCategoryId: id }
                 })
+            ])
 
             return {
                 message: "Sub-category fetched successfully.",
-                data: category
+                data: {
+                    subCategory,
+                    images
+                },
+                pagination: {
+                    totalItems: totalImages,
+                    totalPages: Math.ceil(totalImages / limit),
+                    currentPage: page,
+                    itemsPerPage: limit
+                }
             }
         }
 
@@ -58,7 +85,7 @@ export class SubCategoryService {
 
         try {
             await this.findEntityByIdService.findEntityById("subCategory", id, null)
-            
+
             const subCategory = await this.prisma.subCategory.update({
                 where: { id },
                 data: { name },
@@ -82,9 +109,15 @@ export class SubCategoryService {
     async deleteSubCategory(id: string) {
 
         try {
-            await this.prisma.subCategory.delete({
-                where: { id }
-            });
+            await this.prisma.$transaction([
+                this.prisma.subCategory.delete({
+                    where: { id }
+                }),
+
+                this.prisma.image.deleteMany({
+                    where: { subCategoryId: id }
+                })
+            ])
 
             return {
                 message: "Sub-category deleted successfully."

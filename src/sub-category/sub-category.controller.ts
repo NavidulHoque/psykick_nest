@@ -24,9 +24,11 @@ export class SubCategoryController {
     @Roles(Role.Admin)
     @Get('/get-sub-category/:id')
     getSubCategoryById(
-        @Param('id') id: string
+        @Param('id') id: string,
+        @Query("page") page: number,
+        @Query("limit") limit: number
     ) {
-        return this.subCategoryService.getSubCategoryById(id);
+        return this.subCategoryService.getSubCategoryById(id, page, limit);
     }
 
     @Roles(Role.Admin)

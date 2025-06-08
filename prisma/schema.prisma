@@ -55,6 +55,8 @@ model Image{
 
   subCategory            SubCategory   @relation(fields: [subCategoryId], references: [id])
   subCategoryId          String
+  category               Category      @relation(fields: [categoryId], references: [id])
+  categoryId             String
 
   ARVTargets             ARVTargetImages[]
   TMCTargets             TMCTargetImages[]
@@ -77,6 +79,7 @@ model Category{
   id                     String        @id @default(uuid())
   name                   String
 
+  images                 Image[]
   subCategories          SubCategory[]
 
   createdAt              DateTime      @default(now())
