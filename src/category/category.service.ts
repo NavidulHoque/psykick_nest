@@ -3,13 +3,15 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './dto/createCategory.dto';
 import { HandleErrorsService } from 'src/common/handleErrors.service';
 import { GetCategoryDto } from './dto/getCategory.dto';
+import { FindEntityByIdService } from 'src/common/FindEntityById.service';
 
 @Injectable()
 export class CategoryService {
 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly handleErrorsService: HandleErrorsService
+        private readonly handleErrorsService: HandleErrorsService,
+        private readonly findEntityByIdService: FindEntityByIdService
     ) { }
 
     async createCategory(dto: CreateCategoryDto) {
@@ -74,26 +76,45 @@ export class CategoryService {
         const { page, limit } = dto
 
         try {
-            const category = await this.prisma.category.findUnique({
-                where: { id },
-                select: {
-                    id: true,
-                    name: true,
-                    subCategories: {
-                        select: {
-                            id: true,
-                            name: true,
-                            createdAt: true,
-                            images: {
-                                select: {
-                                    id: true,
-                                    url: true
-                                }
-                            }
-                        }
+            const [category, subCategories, totalSubCategories] = await this.prisma.$transaction([
+                this.prisma.category.findUnique({
+                    where: { id },
+                    select: {
+                        id: true,
+                        name: true,
+                        createdAt: true
                     }
+                }),
+
+                this.prisma.subCategory.findMany({
+                    where: { categoryId: id },
+                    skip: (page - 1) * limit,
+                    take: limit,
+                    select: {
+                        id: true,
+                        name: true,
+                        createdAt: true
+                    }
+                }),
+
+                this.prisma.subCategory.count({
+                    where: { categoryId: id }
+                })
+            ])
+
+            return {
+                message: "Category fetched successfully.",
+                data: {
+                    category,
+                    subCategories
+                },
+                pagination: {
+                    totalItems: totalSubCategories,
+                    totalPages: Math.ceil(totalSubCategories / limit),
+                    currentPage: page,
+                    itemsPerPage: limit
                 }
-            })
+            }
         }
 
         catch (error) {
@@ -127,9 +148,19 @@ export class CategoryService {
     async deleteCategory(id: string) {
 
         try {
-            await this.prisma.category.delete({
-                where: { id }
-            });
+            await this.prisma.$transaction([
+                this.prisma.category.delete({
+                    where: { id }
+                }),
+
+                this.prisma.subCategory.deleteMany({
+                    where: { categoryId: id }
+                }),
+
+                this.prisma.image.deleteMany({
+                    where: { categoryId: id }
+                })
+            ])
 
             return {
                 message: "Category deleted successfully."
