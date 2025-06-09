@@ -5,6 +5,8 @@ import { AuthGuard } from './guards';
 import { OtherAuthDto } from './dto'; 
 import { RolesGuard } from './guards';
 import { User } from './decorators/user.decorator';
+import { Role } from './enum/role.enum';
+import { Roles } from './decorators/roles.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -18,9 +20,9 @@ export class AuthController {
         return this.authService.register(dto)
     }
 
-    @Post("/patientLogin")
+    @Post("/userLogin")
     patientLogin(@Body() dto: LoginDto) {
-        return this.authService.patientLogin(dto)
+        return this.authService.userLogin(dto)
     }
 
     @Post("/doctorLogin")
@@ -56,6 +58,7 @@ export class AuthController {
     }
 
     @UseGuards(AuthGuard, RolesGuard)
+    @Roles(Role.Admin, Role.User)
     @Post("/logout")
     async logout(
         @User("id") id: string
