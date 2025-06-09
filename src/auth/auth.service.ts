@@ -42,12 +42,12 @@ export class AuthService {
         }
     }
 
-    async patientLogin(dto: LoginDto) {
+    async userLogin(dto: LoginDto) {
 
         const { email, password: plainPassword } = dto
 
         try {
-            const response = await this.login(email, plainPassword, "patient")
+            const response = await this.login(email, plainPassword, "user")
 
             return response
         }
