@@ -1,13 +1,14 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { SubCategoryService } from './sub-category.service';
-import { CreateSubCategoryDto } from './dto/createSubCategory.dto';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enum/role.enum';
+import { CreateSubCategoryDto, UpdateSubCategoryDto } from './dto';
+import { GetSubCategoryDto } from './dto/getSubCategory.dto';
 
 @UseGuards(AuthGuard, RolesGuard)
-@Controller('sub-category')
+@Controller('sub-categories')
 export class SubCategoryController {
     constructor(
         private readonly subCategoryService: SubCategoryService
@@ -25,19 +26,18 @@ export class SubCategoryController {
     @Get('/get-sub-category/:id')
     getSubCategoryById(
         @Param('id') id: string,
-        @Query("page") page: number,
-        @Query("limit") limit: number
+        @Query() dto: GetSubCategoryDto 
     ) {
-        return this.subCategoryService.getSubCategoryById(id, page, limit);
+        return this.subCategoryService.getSubCategoryById(id, dto);
     }
 
     @Roles(Role.Admin)
-    @Patch('/update-sub-category:id')
+    @Patch('/update-sub-category/:id')
     updateSubCategory(
         @Param('id') id: string, 
-        @Body("name") name: string
+        @Body() dto: UpdateSubCategoryDto
     ) {
-        return this.subCategoryService.updateSubCategory(id, name);
+        return this.subCategoryService.updateSubCategory(id, dto);
     }
 
     @Roles(Role.Admin)

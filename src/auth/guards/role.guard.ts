@@ -22,12 +22,12 @@ export class RolesGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest();
 
-    const hasRequiredRole = requiredRoles.includes(user.role)
+    const isAuthorizedRole = requiredRoles.includes(user.role)
 
-    if (!hasRequiredRole) {
+    if (!isAuthorizedRole) {
       this.handleErrorsService.throwForbiddenError('You are not authorized to perform this action');
     }
 
-    return hasRequiredRole;
+    return isAuthorizedRole;
   }
 }

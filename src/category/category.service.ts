@@ -88,6 +88,7 @@ export class CategoryService {
 
                 this.prisma.subCategory.findMany({
                     where: { categoryId: id },
+                    orderBy: { createdAt: "desc" },
                     skip: (page - 1) * limit,
                     take: limit,
                     select: {
