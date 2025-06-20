@@ -4,6 +4,7 @@ import { CreateCategoryDto } from './dto/createCategory.dto';
 import { HandleErrorsService } from 'src/common/handleErrors.service';
 import { GetCategoryDto } from './dto/getCategory.dto';
 import { FindEntityByIdService } from 'src/common/FindEntityById.service';
+import { UpdateCategoryDto } from './dto/updateCategory.dto';
 
 @Injectable()
 export class CategoryService {
@@ -122,7 +123,9 @@ export class CategoryService {
         }
     }
 
-    async updateCategory(id: string, name: string) {
+    async updateCategory(id: string, dto: UpdateCategoryDto) {
+
+        const { name } = dto
 
         try {
             const category = await this.prisma.category.update({

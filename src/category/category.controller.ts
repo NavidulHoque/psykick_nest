@@ -6,6 +6,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enum/role.enum';
 import { CreateCategoryDto } from './dto/createCategory.dto';
 import { GetCategoryDto } from './dto/getCategory.dto';
+import { UpdateCategoryDto } from './dto/updateCategory.dto';
 
 @UseGuards(AuthGuard, RolesGuard)
 @Controller('categories')
@@ -42,10 +43,10 @@ export class CategoryController {
     @Roles(Role.Admin)
     @Put('/update-category/:id')
     updateCategory(
-        @Body("name") name: string,
+        @Body() dto: UpdateCategoryDto,
         @Param('id') id: string,
     ) {
-        return this.categoryService.updateCategory(id, name);
+        return this.categoryService.updateCategory(id, dto);
     }
 
     @Roles(Role.Admin)

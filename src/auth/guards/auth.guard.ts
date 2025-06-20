@@ -50,11 +50,17 @@ export class AuthGuard implements CanActivate {
 
         catch (error) {
 
-            if (error.name === "TokenExpiredError") this.handleErrorService.throwUnauthorizedError("Token expired, please login again")
+            if (error.name === "TokenExpiredError") {
+                this.handleErrorService.throwUnauthorizedError("Token expired, please login again")
+            }
 
-            else if (error.name === "JsonWebTokenError") this.handleErrorService.throwUnauthorizedError("Invalid token, please login again");
+            else if (error.name === "JsonWebTokenError") {
+                this.handleErrorService.throwUnauthorizedError("Invalid token, please login again");
+            }
 
-            else if (error.name === "NotBeforeError") this.handleErrorService.throwUnauthorizedError("Token not active yet, please login again");
+            else if (error.name === "NotBeforeError") {
+                this.handleErrorService.throwUnauthorizedError("Token not active yet, please login again");
+            }
 
             throw error
         }

@@ -12,17 +12,6 @@ export class HandleErrorsService {
             throw error; // nest js will throw the correct error
         }
 
-        if (error.name === "ValidationError") {
-
-            const message: string[] = [];
-
-            Object.keys(error.errors).forEach((field) => {
-                message.push(error.errors[field].message);
-            });
-
-            this.throwBadRequestError(message)
-        }
-
         throw new InternalServerErrorException(error.message);
     }
 
