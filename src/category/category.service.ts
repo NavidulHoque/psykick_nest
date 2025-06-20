@@ -3,15 +3,14 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './dto/createCategory.dto';
 import { HandleErrorsService } from 'src/common/handleErrors.service';
 import { GetCategoryDto } from './dto/getCategory.dto';
-import { FindEntityByIdService } from 'src/common/FindEntityById.service';
+import { UpdateCategoryDto } from './dto/updateCategory.dto';
 
 @Injectable()
 export class CategoryService {
 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly handleErrorsService: HandleErrorsService,
-        private readonly findEntityByIdService: FindEntityByIdService
+        private readonly handleErrorsService: HandleErrorsService
     ) { }
 
     async createCategory(dto: CreateCategoryDto) {
@@ -34,12 +33,13 @@ export class CategoryService {
 
         const { search, page, limit } = dto;
 
-        const query = search ? { name: { contains: search, mode: "insensitive" } } : {}
+        const query = search ? { name: { contains: search } } : {}
 
         try {
             const [categories, totalItems] = await this.prisma.$transaction([
                 this.prisma.category.findMany({
                     where: query,
+                    orderBy: { createdAt: "desc" },
                     skip: (page - 1) * limit,
                     take: limit,
                     select: {
@@ -88,6 +88,7 @@ export class CategoryService {
 
                 this.prisma.subCategory.findMany({
                     where: { categoryId: id },
+                    orderBy: { createdAt: "desc" },
                     skip: (page - 1) * limit,
                     take: limit,
                     select: {
@@ -122,7 +123,9 @@ export class CategoryService {
         }
     }
 
-    async updateCategory(id: string, name: string) {
+    async updateCategory(id: string, dto: UpdateCategoryDto) {
+
+        const { name } = dto
 
         try {
             const category = await this.prisma.category.update({

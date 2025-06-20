@@ -21,13 +21,8 @@ export class AuthController {
     }
 
     @Post("/userLogin")
-    patientLogin(@Body() dto: LoginDto) {
+    userLogin(@Body() dto: LoginDto) {
         return this.authService.userLogin(dto)
-    }
-
-    @Post("/doctorLogin")
-    doctorLogin(@Body() dto: LoginDto) {
-        return this.authService.doctorLogin(dto)
     }
 
     @Post("/adminLogin")

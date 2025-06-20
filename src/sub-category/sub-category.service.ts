@@ -3,6 +3,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSubCategoryDto } from './dto/createSubCategory.dto';
 import { HandleErrorsService } from 'src/common/handleErrors.service';
 import { FindEntityByIdService } from 'src/common/FindEntityById.service';
+import { UpdateSubCategoryDto } from './dto';
+import { GetSubCategoryDto } from './dto/getSubCategory.dto';
 
 @Injectable()
 export class SubCategoryService {
@@ -31,7 +33,9 @@ export class SubCategoryService {
 
     }
 
-    async getSubCategoryById(id: string, page: number, limit: number) {
+    async getSubCategoryById(id: string, dto: GetSubCategoryDto) {
+
+        const {page, limit} = dto
 
         try {
             const [subCategory, images, totalImages] = await this.prisma.$transaction([
@@ -81,7 +85,9 @@ export class SubCategoryService {
         }
     }
 
-    async updateSubCategory(id: string, name: string) {
+    async updateSubCategory(id: string, dto: UpdateSubCategoryDto) {
+
+        const {name} = dto
 
         try {
             await this.findEntityByIdService.findEntityById("subCategory", id, null)

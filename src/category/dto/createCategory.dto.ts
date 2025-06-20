@@ -1,8 +1,3 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { BaseCategoryDto } from "./baseCategory.dto";
 
-export class CreateCategoryDto{
-
-    @IsString()
-    @IsNotEmpty({ message: 'Name is required' })
-    readonly name: string
-}
+export class CreateCategoryDto extends BaseCategoryDto{}
