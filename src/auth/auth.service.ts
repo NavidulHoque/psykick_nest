@@ -72,21 +72,6 @@ export class AuthService {
         }
     }
 
-    async doctorLogin(dto: LoginDto) {
-
-        const { email, password: plainPassword } = dto
-
-        try {
-            const response = await this.login(email, plainPassword, "doctor")
-
-            return response
-        }
-
-        catch (error) {
-            this.handleErrorsService.handleError(error)
-        }
-    }
-
     private async login(email: string, plainPassword: string, role: string): Promise<any> {
 
         const user = await this.fetchUserService.fetchUser(email)
