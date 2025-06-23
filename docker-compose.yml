@@ -5,10 +5,11 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./mysql:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_TCP_PORT=3306
+
   phpMyAdmin:
     image: phpmyadmin
     restart: always
@@ -22,3 +23,6 @@ services:
     restart: always
     ports:
       - 6380:6380
+
+volumes:
+  mysql-data:

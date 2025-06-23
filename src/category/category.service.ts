@@ -1,16 +1,19 @@
-import { Injectable, Get } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateCategoryDto } from './dto/createCategory.dto';
 import { HandleErrorsService } from 'src/common/handleErrors.service';
 import { GetCategoryDto } from './dto/getCategory.dto';
 import { UpdateCategoryDto } from './dto/updateCategory.dto';
+import { categorySelect, subCategorySelect } from 'src/prisma/prisma-selects';
+import { FindEntityByIdService } from 'src/common/FindEntityById.service';
 
 @Injectable()
 export class CategoryService {
 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly handleErrorsService: HandleErrorsService
+        private readonly handleErrorsService: HandleErrorsService,
+        private readonly findEntityByIdService: FindEntityByIdService
     ) { }
 
     async createCategory(dto: CreateCategoryDto) {
@@ -42,11 +45,7 @@ export class CategoryService {
                     orderBy: { createdAt: "desc" },
                     skip: (page - 1) * limit,
                     take: limit,
-                    select: {
-                        id: true,
-                        name: true,
-                        createdAt: true
-                    }
+                    select: categorySelect
                 }),
 
                 this.prisma.category.count({
@@ -76,14 +75,12 @@ export class CategoryService {
         const { page, limit } = dto
 
         try {
+            await this.findEntityByIdService.findEntityById("category", id, null)
+
             const [category, subCategories, totalSubCategories] = await this.prisma.$transaction([
                 this.prisma.category.findUnique({
                     where: { id },
-                    select: {
-                        id: true,
-                        name: true,
-                        createdAt: true
-                    }
+                    select: categorySelect
                 }),
 
                 this.prisma.subCategory.findMany({
@@ -91,11 +88,7 @@ export class CategoryService {
                     orderBy: { createdAt: "desc" },
                     skip: (page - 1) * limit,
                     take: limit,
-                    select: {
-                        id: true,
-                        name: true,
-                        createdAt: true
-                    }
+                    select: subCategorySelect
                 }),
 
                 this.prisma.subCategory.count({
@@ -128,18 +121,15 @@ export class CategoryService {
         const { name } = dto
 
         try {
-            const category = await this.prisma.category.update({
+            await this.findEntityByIdService.findEntityById("category", id, null)
+
+            await this.prisma.category.update({
                 where: { id },
-                data: { name },
-                select: {
-                    id: true,
-                    name: true
-                }
+                data: { name }
             });
 
             return {
-                message: "Category name updated successfully.",
-                data: category
+                message: "Category name updated successfully."
             }
         }
 
@@ -151,10 +141,10 @@ export class CategoryService {
     async deleteCategory(id: string) {
 
         try {
+            await this.findEntityByIdService.findEntityById("category", id, null)
+
+            //need to delete child first before deleting parent
             await this.prisma.$transaction([
-                this.prisma.category.delete({
-                    where: { id }
-                }),
 
                 this.prisma.subCategory.deleteMany({
                     where: { categoryId: id }
@@ -164,6 +154,10 @@ export class CategoryService {
                     where: { categoryId: id }
                 })
             ])
+
+            await this.prisma.category.delete({
+                where: { id }
+            })
 
             return {
                 message: "Category deleted successfully."
