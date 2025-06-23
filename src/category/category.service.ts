@@ -72,7 +72,9 @@ export class CategoryService {
 
     async getCategoryById(id: string, dto: GetCategoryDto) {
 
-        const { page, limit } = dto
+        const { page, limit, search } = dto
+
+        const query = search ? { name: { contains: search }, categoryId: id } : { categoryId: id }
 
         try {
             await this.findEntityByIdService.findEntityById("category", id, null)
@@ -84,7 +86,7 @@ export class CategoryService {
                 }),
 
                 this.prisma.subCategory.findMany({
-                    where: { categoryId: id },
+                    where: query,
                     orderBy: { createdAt: "desc" },
                     skip: (page - 1) * limit,
                     take: limit,
@@ -92,7 +94,7 @@ export class CategoryService {
                 }),
 
                 this.prisma.subCategory.count({
-                    where: { categoryId: id }
+                    where: query
                 })
             ])
 
