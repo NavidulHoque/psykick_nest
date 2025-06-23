@@ -23,6 +23,12 @@ export class SubCategoryController {
     }
 
     @Roles(Role.Admin)
+    @Get('/get-all-sub-categories')
+    getAllSubCategories() {
+        return this.subCategoryService.getAllSubCategories();
+    }
+
+    @Roles(Role.Admin)
     @Get('/get-sub-category/:id')
     getSubCategoryById(
         @Param('id') id: string,

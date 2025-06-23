@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateSubCategoryDto } from './dto/createSubCategory.dto';
 import { HandleErrorsService } from 'src/common/handleErrors.service';
 import { FindEntityByIdService } from 'src/common/FindEntityById.service';
-import { UpdateSubCategoryDto } from './dto';
-import { GetSubCategoryDto } from './dto/getSubCategory.dto';
+import { UpdateSubCategoryDto, GetSubCategoryDto, CreateSubCategoryDto } from './dto';
+import { subCategorySelect } from 'src/prisma/prisma-selects';
 
 @Injectable()
 export class SubCategoryService {
@@ -33,6 +32,25 @@ export class SubCategoryService {
 
     }
 
+    async getAllSubCategories() {
+
+        try {
+            const subCategories = await this.prisma.subCategory.findMany({
+                    orderBy: { createdAt: "desc" },
+                    select: subCategorySelect
+                })
+
+            return {
+                message: "Sub-categories fetched successfully.",
+                data: subCategories
+            }
+        }
+
+        catch (error) {
+            this.handleErrorsService.handleError(error)
+        }
+    }
+
     async getSubCategoryById(id: string, dto: GetSubCategoryDto) {
 
         const { page, limit } = dto
@@ -42,11 +60,7 @@ export class SubCategoryService {
 
                 this.prisma.subCategory.findUnique({
                     where: { id },
-                    select: {
-                        id: true,
-                        name: true,
-                        createdAt: true
-                    }
+                    select: subCategorySelect
                 }),
 
                 this.prisma.image.findMany({
