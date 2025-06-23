@@ -73,6 +73,7 @@ model SubCategory{
   categoryId             String
 
   createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
 }
 
 model Category{
@@ -83,6 +84,7 @@ model Category{
   subCategories          SubCategory[]
 
   createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
 }
 
 model ARVTargetImages {
@@ -113,6 +115,7 @@ model ARVTarget{
   images                  ARVTargetImages[]  
 
   createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
 }
 
 model TMCTargetImages {
@@ -138,6 +141,7 @@ model TMCTarget{
   usersPlayed             ParticipatedTMCTarget[]
 
   createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
 }
 
 enum TargetStatus{
