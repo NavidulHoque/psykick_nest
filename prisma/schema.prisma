@@ -51,7 +51,7 @@ enum Gender{
 model Image{
   id                     String        @id @default(uuid())
   url                    String        @unique
-  cloudinaryPublicId     String       @unique
+  cloudinaryPublicId     String        @unique
   isUsed                 Boolean       @default(false)
 
   subCategory            SubCategory   @relation(fields: [subCategoryId], references: [id])
