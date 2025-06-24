@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsDate, IsNotEmpty, IsString, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsNotEmpty, IsString, ValidateNested } from "class-validator";
 
 export class CreateTMCTargetDto {
     @Type(() => Date)
@@ -14,18 +14,14 @@ export class CreateTMCTargetDto {
     @IsDate({ message: 'Date must be a valid date' })
     readonly bufferTime: Date;
 
-    @IsString()
-    @IsNotEmpty()
-    readonly targetImage: string
-
     @IsArray()
     @ArrayNotEmpty()
     @ValidateNested({ each: true })
-    @Type(() => ControlImageDto)
-    readonly controlImages: ControlImageDto[]
+    @Type(() => ImageDto)
+    readonly images: ImageDto[]
 }
 
-class ControlImageDto {
+class ImageDto {
   @IsString()
   @IsNotEmpty()
   url: string;
@@ -33,4 +29,8 @@ class ControlImageDto {
   @IsString()
   @IsNotEmpty()
   id: string;
+
+  @IsBoolean()
+  @IsNotEmpty()
+  isTargetImage: boolean;
 }
