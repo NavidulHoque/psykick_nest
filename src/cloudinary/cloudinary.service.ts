@@ -60,10 +60,10 @@ export class CloudinaryService {
         }
     }
 
-    async delete(public_id: string): Promise<void> {
+    async deleteImage(public_id: string): Promise<void> {
         try {
             await cloudinary.uploader.destroy(public_id, {
-                resource_type: 'auto',
+                resource_type: 'image',
             });
         } 
         

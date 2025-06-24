@@ -3,7 +3,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { HandleErrorsService } from 'src/common/handleErrors.service';
 import { FindEntityByIdService } from 'src/common/FindEntityById.service';
 import { UpdateSubCategoryDto, GetSubCategoryDto, CreateSubCategoryDto } from './dto';
-import { subCategorySelect } from 'src/prisma/prisma-selects';
+import { imageSelect, subCategorySelect } from 'src/prisma/prisma-selects';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class SubCategoryService {
@@ -11,7 +12,8 @@ export class SubCategoryService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly handleErrorsService: HandleErrorsService,
-        private readonly findEntityByIdService: FindEntityByIdService
+        private readonly findEntityByIdService: FindEntityByIdService,
+        private readonly cloudinaryService: CloudinaryService
     ) { }
 
     async createSubCategory(dto: CreateSubCategoryDto) {
@@ -36,9 +38,9 @@ export class SubCategoryService {
 
         try {
             const subCategories = await this.prisma.subCategory.findMany({
-                    orderBy: { createdAt: "desc" },
-                    select: subCategorySelect
-                })
+                orderBy: { createdAt: "desc" },
+                select: subCategorySelect
+            })
 
             return {
                 message: "Sub-categories fetched successfully.",
@@ -56,6 +58,8 @@ export class SubCategoryService {
         const { page, limit } = dto
 
         try {
+            await this.findEntityByIdService.findEntityById("subCategory", id, null)
+
             const [subCategory, images, totalImages] = await this.prisma.$transaction([
 
                 this.prisma.subCategory.findUnique({
@@ -66,11 +70,7 @@ export class SubCategoryService {
                 this.prisma.image.findMany({
                     where: { subCategoryId: id },
                     orderBy: { createdAt: 'desc' },
-                    select: {
-                        id: true,
-                        url: true,
-                        createdAt: true
-                    },
+                    select: imageSelect,
                     take: limit,
                     skip: (page - 1) * limit
                 }),
@@ -107,18 +107,13 @@ export class SubCategoryService {
         try {
             await this.findEntityByIdService.findEntityById("subCategory", id, null)
 
-            const subCategory = await this.prisma.subCategory.update({
+            await this.prisma.subCategory.update({
                 where: { id },
-                data: { name },
-                select: {
-                    id: true,
-                    name: true
-                }
+                data: { name }
             });
 
             return {
-                message: "Sub-category name updated successfully.",
-                data: subCategory
+                message: "Sub-category name updated successfully."
             }
         }
 
@@ -130,15 +125,29 @@ export class SubCategoryService {
     async deleteSubCategory(id: string) {
 
         try {
-            await this.prisma.$transaction([
-                this.prisma.subCategory.delete({
-                    where: { id }
-                }),
+            await this.findEntityByIdService.findEntityById("subCategory", id, null)
 
-                this.prisma.image.deleteMany({
-                    where: { subCategoryId: id }
-                })
-            ])
+            // at first deleting child to avoid foreign key constraint
+            const images = await this.prisma.image.findMany({
+                where: { subCategoryId: id }
+            })
+
+            for (const image of images) {
+
+                const { cloudinaryPublicId, id } = image
+                
+                await Promise.all([
+                    this.cloudinaryService.deleteImage(cloudinaryPublicId),
+                    this.prisma.image.delete({
+                        where: { id }
+                    })
+                ])
+            }
+
+            //finally deleting parent
+            await this.prisma.subCategory.delete({
+                where: { id }
+            })
 
             return {
                 message: "Sub-category deleted successfully."

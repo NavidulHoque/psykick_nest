@@ -47,7 +47,7 @@ export class SubCategoryController {
     }
 
     @Roles(Role.Admin)
-    @Delete(':id')
+    @Delete('/delete-sub-category/:id')
     deleteSubCategory(
         @Param('id') id: string
     ) {
