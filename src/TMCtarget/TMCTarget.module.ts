@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TmctargetController } from './tmctarget.controller';
-import { TmctargetService } from './tmctarget.service';
+import { TmctargetController } from './TMCTarget.controller';
+import { TmctargetService } from './TMCTarget.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { CommonModule } from 'src/common/common.module';
 import { ConfigModule } from '@nestjs/config';
