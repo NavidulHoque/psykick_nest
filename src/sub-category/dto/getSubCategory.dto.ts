@@ -1,14 +1,3 @@
-import { Type } from "class-transformer";
-import { IsInt, Max, Min } from "class-validator";
+import { PaginationDto } from "src/common/dto";
 
-export class GetSubCategoryDto {
-    @Type(() => Number)
-    @IsInt()
-    @Min(1, { message: 'Page must be at least 1' })
-    readonly page: number;
-
-    @Type(() => Number)
-    @IsInt()
-    @Max(10, { message: 'Limit must be at most 10' })
-    readonly limit: number;
-}
+export class GetSubCategoryDto extends PaginationDto {}
