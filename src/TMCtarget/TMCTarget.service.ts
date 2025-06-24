@@ -14,7 +14,7 @@ export class TmctargetService {
 
     async createTMCTarget(dto: CreateTMCTargetDto) {
 
-        const { targetImage, controlImages, revealTime, bufferTime, gameTime } = dto;
+        const { images, revealTime, bufferTime, gameTime } = dto;
 
         let code: string;
         let isARVTargetCodeExists: boolean, isTMCTargetCodeExists: boolean;
@@ -45,20 +45,31 @@ export class TmctargetService {
             const TMCTarget = await this.prisma.tMCTarget.create({
                 data: {
                     code,
-                    targetImage,
                     revealTime,
                     bufferTime,
                     gameTime
                 }
             })
 
-            for (const controlImage of controlImages) {
-                await this.prisma.tMCTargetControlImages.create({
-                    data: {
-                        TMCTargetId: TMCTarget.id,
-                        imageId: controlImage.id
-                    }
-                })
+            for (const image of images) {
+                if (image.isTargetImage) {
+                    await this.prisma.tMCTargetImages.create({
+                        data: {
+                            TMCTargetId: TMCTarget.id,
+                            imageId: image.id,
+                            isTargetImage: true
+                        }
+                    })
+                }
+
+                else {
+                    await this.prisma.tMCTargetImages.create({
+                        data: {
+                            TMCTargetId: TMCTarget.id,
+                            imageId: image.id
+                        }
+                    })
+                }
             }
 
             return {
@@ -103,7 +114,6 @@ export class TmctargetService {
                     select: {
                         id: true,
                         code: true,
-                        targetImage: true,
                         status: true,
                         createdAt: true
                     }

@@ -52,15 +52,14 @@ model Image{
   id                     String        @id @default(uuid())
   url                    String        @unique
   cloudinaryPublicId     String        @unique
-  isUsed                 Boolean       @default(false)
 
   subCategory            SubCategory   @relation(fields: [subCategoryId], references: [id])
   subCategoryId          String
   category               Category      @relation(fields: [categoryId], references: [id])
   categoryId             String
 
-  ARVTargets             ARVTargetImages[]
-  TMCTargets             TMCTargetImages[]
+  usedInARVTargets       ARVTargetImages[]
+  usedInTMCTargets       TMCTargetImages[]
 
   createdAt              DateTime      @default(now())
 }
@@ -95,6 +94,7 @@ model ARVTargetImages {
   ARVTarget              ARVTarget     @relation(fields: [ARVTargetId], references: [id])
   ARVTargetId            String        
   description            String
+  isTargetImage          Boolean       @default(false)
 }
 
 model ARVTarget{
@@ -108,8 +108,6 @@ model ARVTarget{
   outcomeTime             DateTime
   bufferTime              DateTime
 
-  controlImage            String
-  resultImage             String?
   status                  TargetStatus    @default(PENDING)
 
   usersPlayed             ParticipatedARVTarget[]
@@ -124,7 +122,8 @@ model TMCTargetImages {
   image                  Image         @relation(fields: [imageId], references: [id])
   imageId                String
   TMCTarget              TMCTarget     @relation(fields: [TMCTargetId], references: [id])
-  TMCTargetId            String 
+  TMCTargetId            String
+  isTargetImage          Boolean       @default(false)
 }
 
 model TMCTarget{
@@ -135,10 +134,9 @@ model TMCTarget{
   revealTime              DateTime
   bufferTime              DateTime
 
-  targetImage             String
   status                  TargetStatus        @default(PENDING)
 
-  controlImages           TMCTargetImages[]
+  images                  TMCTargetImages[]   
   usersPlayed             ParticipatedTMCTarget[]
 
   createdAt               DateTime      @default(now())
