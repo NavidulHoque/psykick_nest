@@ -3,15 +3,15 @@ import { ArrayNotEmpty, IsArray, IsBoolean, IsDate, IsNotEmpty, IsString, Valida
 
 export class CreateTMCTargetDto {
     @Type(() => Date)
-    @IsDate({ message: 'Date must be a valid date' })
+    @IsDate({ message: 'Game Time must be a valid date' })
     readonly gameTime: Date;
     
     @Type(() => Date)
-    @IsDate({ message: 'Date must be a valid date' })
+    @IsDate({ message: 'Reaveal Time must be a valid date' })
     readonly revealTime: Date;
 
     @Type(() => Date)
-    @IsDate({ message: 'Date must be a valid date' })
+    @IsDate({ message: 'Buffer Time must be a valid date' })
     readonly bufferTime: Date;
 
     @IsArray()
@@ -23,14 +23,14 @@ export class CreateTMCTargetDto {
 
 class ImageDto {
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({message: "url is required"})
   url: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({message: "id is required"})
   id: string;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsNotEmpty({message: "isTargetImage is required"})
   isTargetImage: boolean;
 }

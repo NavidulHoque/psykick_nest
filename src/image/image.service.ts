@@ -21,6 +21,9 @@ export class ImageService {
         const { subCategoryId, categoryId } = dto
 
         try {
+            await this.findEntityByIdService.findEntityById("subCategory", subCategoryId, null)
+            await this.findEntityByIdService.findEntityById("category", categoryId, null)
+            
             const ext = path.extname(file.originalname).toLowerCase();
             const isImage = /jpeg|jpg|png|gif/.test(ext);
 

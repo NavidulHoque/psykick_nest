@@ -16,6 +16,18 @@ export class TmctargetService {
 
         const { images, revealTime, bufferTime, gameTime } = dto;
 
+        if (new Date(gameTime).getTime() <= new Date().getTime()) {
+            this.handleErrorsService.throwBadRequestError("Game time should be in the future");
+        }
+
+        else if (new Date(revealTime).getTime() < new Date(gameTime).getTime()) {
+            this.handleErrorsService.throwBadRequestError("Reveal time should be in the future or equal to game time");
+        }
+
+        else if (new Date(bufferTime).getTime() < new Date(revealTime).getTime()) {
+            this.handleErrorsService.throwBadRequestError("Buffer time should be in the future or equal to reveal time");
+        }
+
         let code: string;
         let isARVTargetCodeExists: boolean, isTMCTargetCodeExists: boolean;
 
@@ -31,14 +43,6 @@ export class TmctargetService {
             }));
 
         } while (isARVTargetCodeExists || isTMCTargetCodeExists);
-
-        if (new Date(revealTime).getTime() < new Date(gameTime).getTime()) {
-            this.handleErrorsService.throwBadRequestError("Reveal time should be in the future or equal to game time");
-        }
-
-        else if (new Date(revealTime).getTime() > new Date(bufferTime).getTime()) {
-            this.handleErrorsService.throwBadRequestError("Reveal time should be in the past or equal to buffer time");
-        }
 
         try {
 
@@ -111,11 +115,19 @@ export class TmctargetService {
                     orderBy: { createdAt: "desc" },
                     skip: (page - 1) * limit,
                     take: limit,
-                    select: {
-                        id: true,
-                        code: true,
-                        status: true,
-                        createdAt: true
+                    include: {
+                        images: {
+                            select: {
+                                image: {
+                                    select: {
+                                        id: true,
+                                        url: true
+                                    }
+                                },
+                                isTargetImage: true
+                            }
+                        },
+                        usersPlayed: true
                     }
                 }),
 

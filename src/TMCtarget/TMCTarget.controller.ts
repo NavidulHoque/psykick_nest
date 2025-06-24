@@ -6,7 +6,7 @@ import { Role } from 'src/auth/enum/role.enum';
 import { CreateTMCTargetDto, GetTMCTargetsDto, UpdateTMCTargetDto } from './dto';
 
 @UseGuards(AuthGuard, RolesGuard)
-@Controller('tmctarget')
+@Controller('tmctargets')
 export class TmctargetController {
 
     constructor(
