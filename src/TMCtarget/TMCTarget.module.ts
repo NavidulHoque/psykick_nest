@@ -4,9 +4,17 @@ import { TmctargetService } from './TMCTarget.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { CommonModule } from 'src/common/common.module';
 import { ConfigModule } from '@nestjs/config';
+import { BullModule } from '@nestjs/bull';
 
 @Module({
-  imports: [PrismaModule, CommonModule, ConfigModule],
+  imports: [
+    BullModule.registerQueue({
+      name: 'tmctarget-queue',
+    }),
+    PrismaModule, 
+    CommonModule, 
+    ConfigModule
+  ],
   controllers: [TmctargetController],
   providers: [TmctargetService]
 })
