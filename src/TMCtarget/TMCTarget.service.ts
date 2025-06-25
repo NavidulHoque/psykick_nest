@@ -3,13 +3,15 @@ import { HandleErrorsService } from 'src/common/handleErrors.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTMCTargetDto, GetTMCTargetsDto, UpdateTMCTargetDto } from './dto';
 import { contains } from 'class-validator';
+import { FindEntityByIdService } from '../common/FindEntityById.service';
 
 @Injectable()
 export class TmctargetService {
 
     constructor(
         private readonly prisma: PrismaService,
-        private readonly handleErrorsService: HandleErrorsService
+        private readonly handleErrorsService: HandleErrorsService,
+        private readonly findEntityByIdService: FindEntityByIdService
     ) { }
 
     async createTMCTarget(dto: CreateTMCTargetDto) {
@@ -153,10 +155,71 @@ export class TmctargetService {
         }
     }
 
-    async updateTMCTarget(dto: UpdateTMCTargetDto) {
+    async updateTMCTarget(dto: UpdateTMCTargetDto, id: string) {
+
+        const { status: dtoStatus, revealTime: dtoRevealTime, bufferTime: dtoBufferTime, gameTime: dtoGameTime } = dto;
+
+        let data = {};
+        let message = '';
 
         try {
 
+            const TMCTarget = await this.findEntityByIdService.findEntityById('tMCTarget', id, { gameTime: true, revealTime: true, bufferTime: true, status: true });
+
+            const { gameTime: TMCTargetGameTime, revealTime: TMCTargetRevealTime, bufferTime: TMCTargetBufferTime, status: TMCTargetStatus } = TMCTarget;
+
+            if (dtoStatus) {
+
+                if (dtoStatus === "QUEUED") {
+
+                    if (new Date(TMCTargetGameTime).getTime() < new Date().getTime()) {
+                        this.handleErrorsService.throwBadRequestError("Current time exceeds game time");
+                    }
+                }
+
+                data = { status: dtoStatus };
+
+                message = "TMC target status updated successfully.";
+            }
+
+            else if (dtoGameTime || dtoRevealTime || dtoBufferTime) {
+
+                if (TMCTargetStatus !== "QUEUED" && TMCTargetStatus !== "PENDING") {
+                    this.handleErrorsService.throwBadRequestError("You can only update game time, reveal time and buffer time when the target is in QUEUED or PENDING status");
+                }
+
+                else if (dtoGameTime) {
+
+                    if (new Date(TMCTargetRevealTime).getTime() < new Date(dtoGameTime).getTime()) {
+                        this.handleErrorsService.throwBadRequestError("Reveal time should be in the future or equal to game time");
+                    }
+
+                    data = { gameTime: dtoGameTime }
+                    message = "TMC target game time updated successfully.";
+                }
+
+                else if (dtoRevealTime) {
+                    if (new Date(TMCTargetBufferTime).getTime() < new Date(dtoRevealTime).getTime()) {
+                        this.handleErrorsService.throwBadRequestError("Buffer time should be in the future or equal to reveal time");
+                    }
+
+                    data = { revealTime: dtoRevealTime }
+                    message = "TMC target reveal time updated successfully.";
+                }
+
+                else if (dtoBufferTime) {
+
+                    data = { bufferTime: dtoBufferTime }
+                    message = "TMC target buffer time updated successfully.";
+                }
+            }
+
+            await this.prisma.tMCTarget.update({
+                where: { id },
+                data
+            })
+
+            return { message }
         }
 
         catch (error) {
@@ -168,6 +231,17 @@ export class TmctargetService {
 
         try {
 
+            const TMCTarget = await this.findEntityByIdService.findEntityById('tMCTarget', id, { status: true });
+
+            if (TMCTarget.status !== "QUEUED" && TMCTarget.status !== "PENDING") {
+                this.handleErrorsService.throwBadRequestError("You can only delete TMC target when it is in QUEUED or PENDING status");
+            }
+
+            await this.prisma.tMCTarget.delete({
+                where: { id }
+            })
+
+            return { message: "TMC target deleted successfully." }
         }
 
         catch (error) {

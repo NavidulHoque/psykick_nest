@@ -32,9 +32,10 @@ export class TmctargetController {
     @Roles(Role.Admin)
     @Patch('/update-TMC-Target/:id')
     updateTMCTarget(
-        @Body() dto: UpdateTMCTargetDto
+        @Body() dto: UpdateTMCTargetDto,
+        @Param("id") id: string
     ) {
-        return this.tmctargetService.updateTMCTarget(dto)
+        return this.tmctargetService.updateTMCTarget(dto, id)
     }
 
     @Roles(Role.Admin)
