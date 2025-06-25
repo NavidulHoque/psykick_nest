@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { HandleErrorsService } from 'src/common/handleErrors.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateTMCTargetDto, GetTMCTargetsDto, UpdateTMCTargetDto } from './dto';
-import { contains } from 'class-validator';
 import { FindEntityByIdService } from '../common/FindEntityById.service';
 
 @Injectable()
